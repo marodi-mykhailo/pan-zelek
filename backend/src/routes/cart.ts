@@ -26,7 +26,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res) => {
       },
     });
 
-    const items = cartItems.map((item) => ({
+    const items = cartItems.map((item: typeof cartItems[0]) => ({
       id: item.id,
       productId: item.productId,
       product: {
@@ -39,7 +39,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res) => {
       quantity: item.quantity,
     }));
 
-    const total = items.reduce((sum, item) => {
+    const total = items.reduce((sum: number, item: typeof items[0]) => {
       return sum + (item.product.pricePer100g / 100) * item.weight * item.quantity;
     }, 0);
 
