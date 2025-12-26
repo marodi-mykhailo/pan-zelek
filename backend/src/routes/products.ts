@@ -36,7 +36,15 @@ router.get('/', async (req, res) => {
     res.json({ products });
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    // Return more detailed error in development, generic in production
+    const errorMessage = process.env.NODE_ENV === 'production'
+      ? 'Failed to fetch products'
+      : error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      error: 'Failed to fetch products',
+      message: errorMessage,
+      details: process.env.NODE_ENV !== 'production' ? String(error) : undefined,
+    });
   }
 });
 
