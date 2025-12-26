@@ -22,10 +22,10 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Set API URL for production builds
+      // Set API URL for production builds (must include /api)
       'import.meta.env.VITE_API_URL': JSON.stringify(
         mode === 'production'
-          ? 'https://web-production-101aa.up.railway.app'
+          ? 'https://web-production-101aa.up.railway.app/api'
           : undefined
       ),
     },
