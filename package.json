@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist",
     "db:generate": "dotenv -e backend/.env -- prisma generate --schema=backend/prisma/schema.prisma",
+    "db:generate:prod": "prisma generate --schema=backend/prisma/schema.prisma",
     "db:push": "dotenv -e backend/.env -- prisma db push --schema=backend/prisma/schema.prisma",
     "db:migrate": "dotenv -e backend/.env -- prisma migrate dev --schema=backend/prisma/schema.prisma",
     "db:studio": "dotenv -e backend/.env -- prisma studio --schema=backend/prisma/schema.prisma",

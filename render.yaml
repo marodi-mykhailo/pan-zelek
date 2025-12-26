@@ -2,7 +2,7 @@ services:
   - type: web
     name: pan-zelek-backend
     env: node
-    buildCommand: npm install && npm run build:server
+    buildCommand: npm install && npm run db:generate:prod && npm run build:server
     startCommand: npm start
     envVars:
       - key: NODE_ENV
