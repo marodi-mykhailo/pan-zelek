@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 // Для custom domain або username.github.io використовуйте base: '/'
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/pan-zelek/' : '/',
+  base: '/pan-zelek/',
   server: {
     proxy: {
       '/api': {
