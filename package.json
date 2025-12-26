@@ -4,24 +4,51 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx watch backend/src/server.ts",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "tsc && vite build",
+    "build:server": "tsc --project backend/tsconfig.json",
+    "build:all": "npm run build && npm run build:server",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "db:generate": "dotenv -e backend/.env -- prisma generate --schema=backend/prisma/schema.prisma",
+    "db:push": "dotenv -e backend/.env -- prisma db push --schema=backend/prisma/schema.prisma",
+    "db:migrate": "dotenv -e backend/.env -- prisma migrate dev --schema=backend/prisma/schema.prisma",
+    "db:studio": "dotenv -e backend/.env -- prisma studio --schema=backend/prisma/schema.prisma",
+    "db:seed": "dotenv -e backend/.env -- tsx backend/prisma/seed.ts",
+    "start": "node backend/dist/server.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "lucide-react": "^0.263.1"
+    "react-router-dom": "^6.20.1",
+    "zod": "^4.2.1",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
-    "gh-pages": "^6.0.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "tailwindcss": "^3.3.3",
     "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.27"
+    "concurrently": "^8.2.2",
+    "dotenv-cli": "^11.0.0",
+    "gh-pages": "^6.0.0",
+    "postcss": "^8.4.27",
+    "prisma": "^5.7.1",
+    "tailwindcss": "^3.3.3",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
   }
 }

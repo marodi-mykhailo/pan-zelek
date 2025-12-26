@@ -8,6 +8,7 @@ export default {
     extend: {
       animation: {
         'blob': 'blob 7s infinite',
+        'in': 'in 0.3s ease-out',
       },
       keyframes: {
         blob: {
@@ -22,6 +23,16 @@ export default {
           },
           '100%': {
             transform: 'translate(0px, 0px) scale(1)',
+          },
+        },
+        in: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateX(100%)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateX(0)',
           },
         },
       },

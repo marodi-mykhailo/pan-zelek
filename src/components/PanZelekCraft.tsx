@@ -1,5 +1,5 @@
 import { Check, Facebook, Heart, Instagram, Menu, Package, Scroll, ShoppingCart, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Мок-дані (Крафтова версія)
 const products = [

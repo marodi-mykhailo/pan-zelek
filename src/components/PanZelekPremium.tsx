@@ -1,5 +1,5 @@
 import { ArrowRight, Facebook, Instagram, Menu, Search, ShoppingBag, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Мок-дані (Premium версія)
 const products = [

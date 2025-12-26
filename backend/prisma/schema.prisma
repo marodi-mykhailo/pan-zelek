@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  phone     String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses Address[]
+  orders    Order[]
+  boxTemplates BoxTemplate[]
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  street      String
+  city        String
+  postalCode  String
+  country     String   @default("Poland")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders      Order[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  namePl      String   // Polish name
+  description String?
+  descriptionPl String?
+  image       String?
+  category    String   // sour, sweet, licorice, etc.
+  pricePer100g Float  // Price per 100 grams
+  inStock     Boolean  @default(true)
+  stockWeight Float?   // Available weight in grams
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  boxItems    BoxTemplateItem[]
+
+  @@index([category])
+  @@index([inStock])
+  @@index([name])
+  @@index([namePl])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  sessionId String   // For guest carts
+  userId    String?  // For logged in users
+  productId String
+  weight    Float    // Weight in grams
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String?
+  email         String
+  phone         String?
+  status        OrderStatus @default(PENDING)
+  total         Float
+  shippingCost  Float
+  paymentMethod String
+  paymentStatus PaymentStatus @default(PENDING)
+  shippingAddressId String
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User?       @relation(fields: [userId], references: [id])
+  shippingAddress Address   @relation(fields: [shippingAddressId], references: [id])
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  weight    Float
+  quantity  Int
+  price     Float    // Price at time of order
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model BoxTemplate {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  totalWeight Float
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     BoxTemplateItem[]
+}
+
+model BoxTemplateItem {
+  id          String   @id @default(cuid())
+  templateId  String
+  productId   String
+  weight      Float
+
+  template    BoxTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  product     Product    @relation(fields: [productId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}

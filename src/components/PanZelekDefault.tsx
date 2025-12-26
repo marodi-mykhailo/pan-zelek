@@ -1,5 +1,9 @@
-import { CheckCircle, Facebook, Gift, Heart, Instagram, Menu, ShoppingCart, Star, Truck, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { CheckCircle, Facebook, Gift, Instagram, Menu, ShoppingCart, Star, Truck, X, User } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 // Мок-дані для товарів (польською мовою та в злотих)
 const products = [
@@ -13,10 +17,29 @@ const products = [
 
 const PanZelekDefault = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const location = useLocation();
+  const getItemCount = useCartStore((state) => state.getItemCount);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
+  const user = useAuthStore((state) => state.user);
+  const addItem = useCartStore((state) => state.addItem);
+  const showToast = useToastStore((state) => state.showToast);
+  const cartCount = getItemCount();
 
-  const addToCart = () => {
-    setCartCount(prev => prev + 1);
+  const isActive = (path: string) => location.pathname === path;
+
+  const handleAddToCart = (product: typeof products[0]) => {
+    // Mock product data - в реальному застосунку тут буде API виклик
+    addItem(
+      {
+        id: `mock-${product.id}`,
+        namePl: product.name,
+        image: product.image,
+        pricePer100g: product.price * 10, // Конвертуємо в ціну за 100г
+      },
+      100 // Default weight
+    );
+    showToast(`${product.name} dodano do koszyka!`, 'success');
   };
 
   return (
@@ -37,26 +60,101 @@ const PanZelekDefault = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-8 font-medium text-gray-600">
-              <a href="#" className="hover:text-pink-500 transition-colors">Strona Główna</a>
-              <a href="#shop" className="hover:text-pink-500 transition-colors">Sklep</a>
-              <a href="#box" className="hover:text-pink-500 transition-colors">Nasze Pudełko</a>
-              <a href="#reviews" className="hover:text-pink-500 transition-colors">Opinie</a>
+            <div className="hidden md:flex space-x-6 font-medium text-gray-600 items-center">
+              <Link
+                to="/"
+                className={`transition-colors ${
+                  isActive('/')
+                    ? 'text-pink-600 font-bold border-b-2 border-pink-600 pb-1'
+                    : 'hover:text-pink-500'
+                }`}
+              >
+                Strona Główna
+              </Link>
+              <Link
+                to="/products"
+                className={`transition-colors ${
+                  isActive('/products')
+                    ? 'text-pink-600 font-bold border-b-2 border-pink-600 pb-1'
+                    : 'hover:text-pink-500'
+                }`}
+              >
+                Sklep
+              </Link>
+              <Link
+                to="/box-builder"
+                className={`transition-colors ${
+                  isActive('/box-builder')
+                    ? 'text-pink-600 font-bold border-b-2 border-pink-600 pb-1'
+                    : 'hover:text-pink-500'
+                }`}
+              >
+                Stwórz BOX
+              </Link>
+              {isAuthenticated() && (
+                <>
+                  <Link
+                    to="/profile"
+                    className={`transition-colors flex items-center gap-1 ${
+                      isActive('/profile')
+                        ? 'text-pink-600 font-bold border-b-2 border-pink-600 pb-1'
+                        : 'hover:text-pink-500'
+                    }`}
+                  >
+                    <User size={18} />
+                    Profil
+                  </Link>
+                  {isAdmin() && (
+                    <Link
+                      to="/admin"
+                      className={`transition-colors ${
+                        isActive('/admin')
+                          ? 'text-pink-600 font-bold border-b-2 border-pink-600 pb-1'
+                          : 'hover:text-pink-500'
+                      }`}
+                    >
+                      Admin
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
 
-            {/* Icons */}
+            {/* Right Side - Auth Button & Icons */}
             <div className="flex items-center gap-4">
-              <button className="text-gray-500 hover:text-pink-500 transition-colors">
+              {!isAuthenticated() ? (
+                <Link
+                  to="/login"
+                  className="group relative px-5 py-2.5 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-xl font-semibold hover:from-pink-700 hover:to-pink-600 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                >
+                  <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <User size={18} className="relative z-10" />
+                  <span className="relative z-10 hidden sm:inline">Zaloguj się</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/profile"
+                  className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-pink-600 transition-colors rounded-lg hover:bg-pink-50"
+                >
+                  <User size={20} />
+                  <span className="font-medium">{user?.name || 'Profil'}</span>
+                </Link>
+              )}
+              {/* Heart button - поки що прибрано, можна додати wishlist пізніше */}
+              {/* <button className="text-gray-500 hover:text-pink-500 transition-colors" title="Ulubione">
                 <Heart size={24} />
-              </button>
-              <button className="relative text-gray-500 hover:text-pink-500 transition-colors group">
+              </button> */}
+              <Link
+                to="/cart"
+                className="relative text-gray-500 hover:text-pink-500 transition-colors group"
+              >
                 <ShoppingCart size={24} />
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">
                     {cartCount}
                   </span>
                 )}
-              </button>
+              </Link>
 
               {/* Mobile Menu Button */}
               <button
@@ -72,10 +170,68 @@ const PanZelekDefault = () => {
         {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 p-4 space-y-4">
-            <a href="#" className="block text-gray-700 hover:text-pink-500 font-medium">Strona Główna</a>
-            <a href="#shop" className="block text-gray-700 hover:text-pink-500 font-medium">Sklep</a>
-            <a href="#box" className="block text-gray-700 hover:text-pink-500 font-medium">Nasze Pudełko</a>
-            <a href="#contact" className="block text-gray-700 hover:text-pink-500 font-medium">Kontakt</a>
+            <Link
+              to="/"
+              onClick={() => setIsMenuOpen(false)}
+              className={`block font-medium ${
+                isActive('/') ? 'text-pink-600 font-bold' : 'text-gray-700 hover:text-pink-500'
+              }`}
+            >
+              Strona Główna
+            </Link>
+            <Link
+              to="/products"
+              onClick={() => setIsMenuOpen(false)}
+              className={`block font-medium ${
+                isActive('/products') ? 'text-pink-600 font-bold' : 'text-gray-700 hover:text-pink-500'
+              }`}
+            >
+              Sklep
+            </Link>
+            <Link
+              to="/box-builder"
+              onClick={() => setIsMenuOpen(false)}
+              className={`block font-medium ${
+                isActive('/box-builder') ? 'text-pink-600 font-bold' : 'text-gray-700 hover:text-pink-500'
+              }`}
+            >
+              Stwórz BOX
+            </Link>
+            {isAuthenticated() ? (
+              <>
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block font-medium ${
+                    isActive('/profile') ? 'text-pink-600 font-bold' : 'text-gray-700 hover:text-pink-500'
+                  }`}
+                >
+                  Profil
+                </Link>
+                {isAdmin() && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block font-medium ${
+                      isActive('/admin') ? 'text-pink-600 font-bold' : 'text-gray-700 hover:text-pink-500'
+                    }`}
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-xl font-semibold hover:from-pink-700 hover:to-pink-600 transition-all duration-300 text-center shadow-lg hover:shadow-xl active:scale-95"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <User size={18} />
+                  <span>Zaloguj się</span>
+                </div>
+              </Link>
+            )}
           </div>
         )}
       </nav>
@@ -98,12 +254,15 @@ const PanZelekDefault = () => {
               Tworzymy boksy, od których serce rośnie! 😍 Stwórz własny mix lub wybierz gotowy zestaw na prezent.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <button className="px-8 py-4 bg-pink-600 text-white rounded-full font-bold text-lg shadow-lg hover:bg-pink-700 hover:scale-105 transition-all">
+              <Link to="/products" className="px-8 py-4 bg-pink-600 text-white rounded-full font-bold text-lg shadow-lg hover:bg-pink-700 hover:scale-105 transition-all text-center">
                 Do sklepu
-              </button>
-              <button className="px-8 py-4 bg-white text-pink-600 border-2 border-pink-100 rounded-full font-bold text-lg hover:bg-pink-50 transition-all">
+              </Link>
+              <Link
+                to="/box-builder"
+                className="px-8 py-4 bg-white text-pink-600 border-2 border-pink-100 rounded-full font-bold text-lg hover:bg-pink-50 transition-all text-center"
+              >
                 Stwórz MIX
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -165,14 +324,14 @@ const PanZelekDefault = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nasze Hity 🔥</h2>
             <p className="text-gray-600">Wybierz to, co kochasz, lub zmiksuj wszystko razem</p>
 
-            {/* Filters */}
-            <div className="flex flex-wrap justify-center gap-2 mt-8">
+            {/* Filters - поки що прибрано, можна додати пізніше коли буде реальна фільтрація */}
+            {/* <div className="flex flex-wrap justify-center gap-2 mt-8">
               {['Wszystkie', 'Kwaśne', 'Słodkie', 'Lukrecja', 'Mixy', 'Box'].map((filter) => (
                 <button key={filter} className="px-6 py-2 rounded-full border border-gray-200 bg-white hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-colors font-medium">
                   {filter}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -202,8 +361,9 @@ const PanZelekDefault = () => {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                     <span className="text-lg font-bold text-pink-600">{product.price} zł</span>
                     <button
-                      onClick={addToCart}
-                      className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors"
+                      onClick={() => handleAddToCart(product)}
+                      className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all hover:scale-110 active:scale-95"
+                      title="Dodaj do koszyka"
                     >
                       <ShoppingCart size={18} />
                     </button>
@@ -214,9 +374,12 @@ const PanZelekDefault = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <button className="px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 rounded-full font-bold hover:bg-gray-900 hover:text-white transition-colors">
+            <Link
+              to="/products"
+              className="inline-block px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 rounded-full font-bold hover:bg-gray-900 hover:text-white transition-colors"
+            >
               Pokaż więcej pyszności
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -253,9 +416,12 @@ const PanZelekDefault = () => {
                     <span>Idealne na prezent (również dla siebie)</span>
                   </li>
                 </ul>
-                <button className="w-full sm:w-auto px-8 py-4 bg-yellow-400 text-indigo-900 font-bold rounded-full hover:bg-yellow-300 transition-colors">
+                <Link
+                  to="/box-builder"
+                  className="inline-block w-full sm:w-auto px-8 py-4 bg-yellow-400 text-indigo-900 font-bold rounded-full hover:bg-yellow-300 transition-colors text-center"
+                >
                   Zamów BOX
-                </button>
+                </Link>
               </div>
             </div>
 

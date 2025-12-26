@@ -1,28 +1,91 @@
-# Pan Żelek - Порівняння дизайнів
+# Pan Żelek - E-commerce магазин
 
-React додаток для порівняння трьох варіантів дизайну сайту Pan Żelek.
+Монолітний додаток для магазину Pan Żelek з React frontend та Node.js backend.
 
-## Варіанти дизайну
+> **Примітка:** Платіжна система та email сповіщення поки що мокуються. Дивіться [TODO.md](./TODO.md) для списку майбутніх інтеграцій.
 
-1. **Default** - Яскравий, веселий дизайн з рожево-жовтою темою
-2. **Craft** - Крафтова, тепла тема з коричневими/земляними кольорами
-3. **Premium** - Мінімалістичний, елегантний дизайн у чорно-білій гамі
+## 🚀 Швидкий старт:
+
+```bash
+# 1. Заповніть базу даних
+npm run db:seed
+
+# 2. Запустіть проект
+npm run dev:all
+
+# 3. Відкрийте http://localhost:5173
+# 4. Увійдіть як адмін: admin@panzelek.pl / admin123
+```
+
+📖 **Детальний гайд:** [TESTING_GUIDE.md](./TESTING_GUIDE.md)
+
+## Функціональність
+
+### Для клієнтів:
+- ✅ Каталог товарів з фільтрами та пошуком
+- ✅ Кошик з можливістю вибору ваги товарів
+- ✅ Конструктор боксів (створення власного боксу на вагу)
+- ✅ Оформлення замовлення
+- ✅ Реєстрація та автентифікація
+- ✅ Профіль користувача з історією замовлень
+- ✅ Збереження шаблонів боксів
+
+### Backend API:
+- ✅ RESTful API для всіх операцій
+- ✅ Автентифікація через JWT
+- ✅ Підтримка сесій для гостей
+- ✅ База даних PostgreSQL з Prisma ORM
 
 ## Встановлення та запуск
 
-### Встановлення залежностей
+### 1. Встановлення залежностей
 
 ```bash
 npm install
 ```
 
-### Запуск у режимі розробки
+### 2. Налаштування бази даних
 
+Створіть файл `backend/.env`:
+```bash
+cp backend/env.example backend/.env
+```
+
+Відредагуйте `DATABASE_URL` в `backend/.env`:
+```
+DATABASE_URL="postgresql://user:password@localhost:5432/panzelek?schema=public"
+```
+
+Створіть базу даних:
+```bash
+createdb panzelek
+```
+
+Запустіть міграції:
+```bash
+npm run db:push
+npm run db:generate
+```
+
+### 3. Запуск у режимі розробки
+
+**Тільки frontend:**
 ```bash
 npm run dev
 ```
 
-Додаток буде доступний за адресою `http://localhost:5173`
+**Тільки backend:**
+```bash
+npm run dev:server
+```
+
+**Frontend + Backend разом:**
+```bash
+npm run dev:all
+```
+
+Frontend буде доступний за адресою `http://localhost:5173`
+Backend API буде доступний за адресою `http://localhost:3000`
 
 ### Збірка для продакшну
 
@@ -103,23 +166,72 @@ npm run deploy
 ## Структура проекту
 
 ```
-mytest/
-├── src/
-│   ├── components/
-│   │   ├── PanZelekDefault.tsx  # Default дизайн
-│   │   ├── PanZelekCraft.tsx     # Craft дизайн
-│   │   └── PanZelekPremium.tsx   # Premium дизайн
-│   ├── App.tsx                    # Головний компонент з перемикачем
-│   ├── main.tsx                  # Точка входу
-│   └── index.css                 # Глобальні стилі
+pan-zelek/
+├── src/                          # Frontend (React)
+│   ├── components/               # Компоненти дизайнів
+│   │   ├── PanZelekDefault.tsx
+│   │   ├── PanZelekCraft.tsx
+│   │   └── PanZelekPremium.tsx
+│   ├── pages/                     # Сторінки
+│   │   ├── ProductsPage.tsx       # Каталог товарів
+│   │   ├── CartPage.tsx           # Кошик
+│   │   ├── CheckoutPage.tsx       # Оформлення замовлення
+│   │   ├── LoginPage.tsx          # Автентифікація
+│   │   ├── BoxBuilderPage.tsx     # Конструктор боксів
+│   │   └── ProfilePage.tsx        # Профіль користувача
+│   ├── store/                     # State management (Zustand)
+│   │   ├── cartStore.ts
+│   │   └── authStore.ts
+│   ├── api/                       # API клієнти
+│   │   ├── products.ts
+│   │   ├── orders.ts
+│   │   ├── auth.ts
+│   │   └── boxTemplates.ts
+│   ├── utils/                     # Утиліти
+│   │   └── session.ts
+│   ├── App.tsx                    # Головний компонент
+│   ├── main.tsx                   # Точка входу
+│   └── index.css                  # Глобальні стилі
+├── backend/                       # Backend (Node.js + Express)
+│   ├── src/
+│   │   ├── routes/                # API routes
+│   │   │   ├── products.ts
+│   │   │   ├── cart.ts
+│   │   │   ├── orders.ts
+│   │   │   ├── auth.ts
+│   │   │   ├── boxTemplates.ts
+│   │   │   └── admin.ts
+│   │   ├── middleware/            # Middleware
+│   │   │   └── auth.ts
+│   │   ├── lib/                   # Утиліти
+│   │   │   ├── prisma.ts
+│   │   │   └── auth.ts
+│   │   └── server.ts              # Express server
+│   └── prisma/
+│       ├── schema.prisma         # База даних схема
+│       └── seed.ts               # Seed дані
 ├── index.html
 ├── package.json
 ├── vite.config.ts
 └── tailwind.config.js
 ```
 
+## Доступні команди
+
+- `npm run dev` - Запуск frontend
+- `npm run dev:server` - Запуск backend
+- `npm run dev:all` - Запуск frontend + backend
+- `npm run build` - Збірка frontend
+- `npm run build:server` - Збірка backend
+- `npm run db:push` - Застосувати зміни до БД
+- `npm run db:generate` - Згенерувати Prisma Client
+- `npm run db:studio` - Відкрити Prisma Studio
+
 ## Примітки
 
-- Всі три дизайни використовують однакові мок-дані для товарів
-- Кожен дизайн має власний стиль та колірну схему
-- Перемикання між дизайнами відбувається миттєво без перезавантаження сторінки
+- Проект використовує монолітну архітектуру (frontend + backend в одному репозиторії)
+- Backend API працює на порту 3000, frontend на 5173
+- Кошик зберігається локально в браузері (localStorage)
+- Для повної функціональності потрібна налаштована база даних PostgreSQL
+- Автентифікація через JWT токени
+- Підтримка гостей (кошик через sessionId) та зареєстрованих користувачів
