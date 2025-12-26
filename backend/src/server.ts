@@ -23,12 +23,31 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+// CORS configuration - allow requests from frontend
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL]
+  : [
+      'http://localhost:5173',
+      'https://marodi-mykhailo.github.io',
+    ];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || [
-    'http://localhost:5173',
-    'https://marodi-mykhailo.github.io',
-    'https://marodi-mykhailo.github.io/pan-zelek',
-  ],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if origin is in allowed list
+    if (allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
+      callback(null, true);
+    } else {
+      // For development, allow localhost
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
