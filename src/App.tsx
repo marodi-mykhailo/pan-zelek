@@ -11,9 +11,12 @@ import { ToastContainer } from './components/ToastContainer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const App = () => {
+  // Get base path from vite config (for GitHub Pages)
+  const basename = import.meta.env.BASE_URL || '/';
+
   return (
     <ErrorBoundary>
-      <Router>
+      <Router basename={basename}>
         <Routes>
           <Route path="/" element={<PanZelekDefault />} />
           <Route path="/products" element={<ProductsPage />} />
