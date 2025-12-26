@@ -43,7 +43,7 @@ const UsersAdmin = () => {
   }
 
   return (
-    <div>
+    <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Użytkownicy</h2>
       </div>

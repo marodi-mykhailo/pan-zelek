@@ -111,7 +111,7 @@ const AdminPage = () => {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout selectedTab={selectedTab} setSelectedTab={setSelectedTab}>
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -254,7 +254,7 @@ const AdminPage = () => {
         )}
 
         {selectedTab === 'orders' && (
-          <>
+          <div className="bg-white rounded-xl shadow-sm p-6">
             {/* Export Button */}
             <div className="mb-6 flex justify-end">
               <button
@@ -288,7 +288,7 @@ const AdminPage = () => {
               </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="overflow-hidden">
               <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
@@ -376,7 +376,7 @@ const AdminPage = () => {
               </table>
             </div>
             {orders.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-xl">
+              <div className="text-center py-16">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingBag size={40} className="text-gray-400" />
                 </div>
@@ -389,7 +389,7 @@ const AdminPage = () => {
               </div>
             )}
             </div>
-          </>
+          </div>
         )}
 
         {selectedTab === 'products' && <ProductsAdmin />}

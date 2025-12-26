@@ -4,14 +4,39 @@ import { LogOut, Home, BarChart3, Package, ShoppingBag, Users } from 'lucide-rea
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  selectedTab?: 'stats' | 'orders' | 'products' | 'users';
+  setSelectedTab?: (tab: 'stats' | 'orders' | 'products' | 'users') => void;
 }
 
-export const AdminLayout = ({ children }: AdminLayoutProps) => {
+export const AdminLayout = ({ children, selectedTab, setSelectedTab }: AdminLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (tab: 'stats' | 'orders' | 'products' | 'users') => {
+    if (selectedTab) {
+      return selectedTab === tab;
+    }
+    // Fallback to URL-based detection
+    if (tab === 'stats') return location.pathname === '/admin';
+    if (tab === 'orders') return location.pathname.includes('/admin/orders') || location.search.includes('tab=orders');
+    if (tab === 'products') return location.pathname.includes('/admin/products') || location.search.includes('tab=products');
+    if (tab === 'users') return location.pathname.includes('/admin/users') || location.search.includes('tab=users');
+    return false;
+  };
+
+  const handleTabClick = (tab: 'stats' | 'orders' | 'products' | 'users') => {
+    if (setSelectedTab) {
+      setSelectedTab(tab);
+    } else {
+      // Fallback to URL navigation
+      if (tab === 'stats') {
+        navigate('/admin');
+      } else {
+        navigate(`/admin?tab=${tab}`);
+      }
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -70,50 +95,50 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         {/* Sidebar */}
         <aside className="hidden md:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)] sticky top-16">
           <nav className="p-4 space-y-2">
-            <Link
-              to="/admin"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive('/admin')
+            <button
+              onClick={() => handleTabClick('stats')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('stats')
                   ? 'bg-purple-50 text-purple-700 font-semibold border-l-4 border-purple-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
               <BarChart3 size={20} />
               <span>Statystyki</span>
-            </Link>
-            <Link
-              to="/admin/orders"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                location.pathname.includes('/admin/orders') || location.search.includes('tab=orders')
+            </button>
+            <button
+              onClick={() => handleTabClick('orders')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('orders')
                   ? 'bg-purple-50 text-purple-700 font-semibold border-l-4 border-purple-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
               <ShoppingBag size={20} />
               <span>Zamówienia</span>
-            </Link>
-            <Link
-              to="/admin/products"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                location.pathname.includes('/admin/products') || location.search.includes('tab=products')
+            </button>
+            <button
+              onClick={() => handleTabClick('products')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('products')
                   ? 'bg-purple-50 text-purple-700 font-semibold border-l-4 border-purple-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
               <Package size={20} />
               <span>Produkty</span>
-            </Link>
-            <Link
-              to="/admin/users"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                location.pathname.includes('/admin/users') || location.search.includes('tab=users')
+            </button>
+            <button
+              onClick={() => handleTabClick('users')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('users')
                   ? 'bg-purple-50 text-purple-700 font-semibold border-l-4 border-purple-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
               <Users size={20} />
               <span>Użytkownicy</span>
-            </Link>
+            </button>
           </nav>
         </aside>
 
