@@ -16,4 +16,12 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    // Set API URL for production builds
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.NODE_ENV === 'production'
+        ? 'https://web-production-101aa.up.railway.app'
+        : undefined
+    ),
+  },
 })
